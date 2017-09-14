@@ -1,0 +1,54 @@
+COBJS += main.o\
+		debug/debug_manager.o\
+		debug/stdout.o\
+		debug/netprint.o\
+		file/file.o\
+		display/fb.o\
+		display/disp_manager.o\
+		input/input_manager.o\
+		input/stdio.o\
+		fonts/fonts_manager.o\
+		fonts/ansii.o\
+		fonts/gbk.o\
+		encoding/encoding_manager.o\
+		encoding/ansii.o\
+		encoding/utf-8.o\
+		encoding/utf-16be.o\
+		encoding/utf-16le.o\
+		render/render.o\
+		render/format/picfmt_manager.o\
+		render/format/bmp.o\
+		render/operation/zoom.o\
+		render/operation/merge.o\
+		page/page_manager.o\
+		page/main_page.o\
+		page/manual_page.o\
+		page/auto_page.o\
+		page/setting_page.o\
+		page/browse_page.o\
+		page/interval_page.o
+		
+		
+		
+
+#CFLAGS += -O2 -Wall -DDEBUG
+CFLAGS	+= -g -I./include
+
+LDFLAGS	+= -lpthread
+
+CROSS_COMPILE	?=
+
+CC = $(CROSS_COMPILE)gcc
+
+TARGET = main
+
+all:$(TARGET)
+$(TARGET):$(COBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+%.o:%.c
+	$(CC) $(CFLAGS) -c -o $@ $^ $(LDFLAGS)
+
+.PHONY:clean
+clean:
+	rm -f $(COBJS)

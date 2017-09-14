@@ -1,0 +1,39 @@
+PHONY := __build
+__build:
+
+obj-y := 
+subdir-y := 
+
+include Makefile
+
+_subdir-y := $(patsubst %/, %, $(filter %/,$(obj-y)))#将obj-y所有目录 文件路径/ 去除
+subdir-y += $(_subdir-y)
+
+subdir_objs := $(foreach f,$(subdir-y),$(f)/built-in.o) //循环进入目录,返回每个子目录名/built-in.o
+
+#反过滤 cur_objs保存所有非目录文件
+cur_objs := $(filter-out %/, $(obj-y))
+dep_files := $(foreach f, $(cur_objs), .$(f).d)
+dep_files := $(wildcard $(dep_files))
+
+ifneq ($(dep_files),)
+	include $(dep_files)
+endif
+
+PHONY += $(subdir-y)
+
+
+__build : $(subdir-y) built-in.o
+
+$(subdir-y):
+	make -C $@ -f $(TOPDIR)/Makefile.build
+
+built-in.o : $(cur_objs) $(subdir_objs)
+	$(LD) -r -o $@ $^
+dep_file = .$@.d
+
+#-MD 每个.c文件对应一个.d文件，将依赖关系写入.d文件中	
+%.o:%.c
+	$(CC) $(CFLAGS) -Wp,-MD,$(dep_file) -c -o $@ $< 
+	
+.PHONY:$(PHONY)
